@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { FiUpload, FiX, FiCheck, FiLoader } from "react-icons/fi";
+import { auth } from '@/app/(auth)/firebase/ClientApp';
 
 const CreatorDashboard = ({ channel }) => {
   const [activeTab, setActiveTab] = useState("headline");
@@ -52,25 +53,6 @@ const CreatorDashboard = ({ channel }) => {
     }));
   };
 
-  const uploadImage = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/upload`, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) throw new Error('Failed to upload image');
-      
-      const data = await response.json();
-      return data.imageUrl;
-    } catch (error) {
-      throw new Error('Image upload failed: ' + error.message);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -78,14 +60,29 @@ const CreatorDashboard = ({ channel }) => {
     setSuccess(false);
   
     try {
-      // First, upload image to Firebase Storage if exists
       let imageUrl = null;
       if (formData.image) {
-        imageUrl = await uploadImageToFirebase(formData.image);
+        const uploadFormData = new FormData();
+        uploadFormData.append('image', formData.image);
+  
+        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+          },
+          body: uploadFormData
+        });
+  
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload image');
+        }
+  
+        const uploadData = await uploadResponse.json();
+        imageUrl = uploadData.url;
       }
   
-      // Then send the content data with image URL to your backend
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/HeadlineNews/Content`, {
+      // Updated endpoint to match the backend route
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/content`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,14 +90,15 @@ const CreatorDashboard = ({ channel }) => {
         },
         body: JSON.stringify({
           message: formData.message,
-          picture: imageUrl, // Send the Firebase Storage URL
+          picture: imageUrl,
           isJustIn: formData.isJustIn,
           tags: formData.tags
         })
       });
   
       if (!response.ok) {
-        throw new Error('Failed to create content');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create content');
       }
   
       setSuccess(true);
