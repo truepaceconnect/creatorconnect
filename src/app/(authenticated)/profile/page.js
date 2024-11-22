@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { auth } from '@/app/(auth)/firebase/ClientApp';
+import ProfilePictureUpload from './ProfilePictureUpload/ProfilePictureUpload';
 
 export default function Profile() {
   const [userData, setUserData] = useState(null);
@@ -29,7 +30,7 @@ export default function Profile() {
         <div>
           <p>Channel Name: {userData.channel?.name}</p>
           <p>Email: {userData.creator?.email}</p>
-          {/* Add more profile information as needed */}
+          <ProfilePictureUpload/>
         </div>
       )}
     </div>

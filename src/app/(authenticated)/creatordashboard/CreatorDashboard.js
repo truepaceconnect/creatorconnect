@@ -13,6 +13,7 @@ import { X } from "lucide-react";
 import { FiUpload, FiX, FiCheck, FiLoader } from "react-icons/fi";
 import { auth } from '@/app/(auth)/firebase/ClientApp';
 
+
 const CreatorDashboard = ({ channel }) => {
   const [activeTab, setActiveTab] = useState("headline");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,6 +23,7 @@ const CreatorDashboard = ({ channel }) => {
   const [formData, setFormData] = useState({
     message: '',
     image: null,
+    imagePreview: null,
     isJustIn: true,
     tags: []
   });
@@ -29,7 +31,11 @@ const CreatorDashboard = ({ channel }) => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
-      setFormData(prev => ({ ...prev, image: file }));
+      setFormData(prev => ({
+        ...prev,
+        image: file,
+        imagePreview: URL.createObjectURL(file)
+      }));
     }
   };
 
@@ -60,40 +66,20 @@ const CreatorDashboard = ({ channel }) => {
     setSuccess(false);
   
     try {
-      let imageUrl = null;
+      const formDataToSend = new FormData();
+      formDataToSend.append('message', formData.message);
       if (formData.image) {
-        const uploadFormData = new FormData();
-        uploadFormData.append('image', formData.image);
-  
-        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/upload`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
-          },
-          body: uploadFormData
-        });
-  
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload image');
-        }
-  
-        const uploadData = await uploadResponse.json();
-        imageUrl = uploadData.url;
+        formDataToSend.append('file', formData.image);
       }
+      formDataToSend.append('isJustIn', formData.isJustIn);
+      formData.tags.forEach(tag => formDataToSend.append('tags[]', tag));
   
-      // Updated endpoint to match the backend route
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/content`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
         },
-        body: JSON.stringify({
-          message: formData.message,
-          picture: imageUrl,
-          isJustIn: formData.isJustIn,
-          tags: formData.tags
-        })
+        body: formDataToSend
       });
   
       if (!response.ok) {
@@ -102,17 +88,33 @@ const CreatorDashboard = ({ channel }) => {
       }
   
       setSuccess(true);
+      // Reset form
       setFormData({
         message: '',
         image: null,
+        imagePreview: null,
         isJustIn: true,
         tags: []
       });
+  
+      // Clear file input
+      const fileInput = document.getElementById('image');
+      if (fileInput) fileInput.value = '';
     } catch (err) {
       setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  const removeImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      image: null,
+      imagePreview: null
+    }));
+    const fileInput = document.getElementById('image');
+    if (fileInput) fileInput.value = '';
   };
   
   return (
@@ -140,6 +142,7 @@ const CreatorDashboard = ({ channel }) => {
                       onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                       placeholder="Enter your headline news..."
                       className="min-h-[100px]"
+                      required
                     />
                   </div>
 
@@ -187,11 +190,30 @@ const CreatorDashboard = ({ channel }) => {
                         Upload Image
                       </Button>
                       {formData.image && (
-                        <span className="text-sm text-gray-500">
-                          {formData.image.name}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-500">
+                            {formData.image.name}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={removeImage}
+                          >
+                            <FiX className="h-4 w-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
+                    {formData.imagePreview && (
+                      <div className="mt-2">
+                        <img
+                          src={formData.imagePreview}
+                          alt="Preview"
+                          className="max-w-xs rounded-lg"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-2">

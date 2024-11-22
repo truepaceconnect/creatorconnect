@@ -53,7 +53,7 @@ export default function LoginForm() {
       
       // The redirect will be handled by the onAuthStateChanged listener
     } catch (error) {
-      console.error('Login error:', error);
+      // console.error('Login error:', error);
       
       // Handle specific Firebase auth errors
       switch (error.code) {
