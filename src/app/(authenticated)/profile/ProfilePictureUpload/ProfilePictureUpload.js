@@ -1,18 +1,49 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { auth } from '@/app/(auth)/firebase/ClientApp';
-import Image from 'next/image';
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export default function ProfilePictureUpload() {
+import { FaCamera } from "react-icons/fa";
+
+const ProfilePictureUpload = () => {
+  const [userData, setUserData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const idToken = await auth.currentUser?.getIdToken();
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/creators/verify`, {
+          headers: {
+            'Authorization': `Bearer ${idToken}`
+          }
+        });
+        const data = await response.json();
+        setUserData(data);
+        // Set the existing channel picture as preview if it exists
+        if (data.channel?.picture) {
+          setPreviewUrl(data.channel.picture);
+        }
+      } catch (err) {
+        setError('Failed to fetch user data');
+      }
+    };
+
+    if (auth.currentUser) {
+      fetchUserData();
+    }
+  }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type and size
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
       const maxSize = 5 * 1024 * 1024; // 5MB
 
@@ -60,44 +91,89 @@ export default function ProfilePictureUpload() {
       }
 
       const result = await response.json();
-      alert('Channel picture uploaded successfully!');
-      
-      // Optionally refresh user data or update UI
+      setSuccess(true);
+      // Update the userData with the new picture URL
+      setUserData(prev => ({
+        ...prev,
+        channel: {
+          ...prev.channel,
+          picture: result.pictureUrl
+        }
+      }));
+
+      // Clear the selected file
+      setSelectedFile(null);
     } catch (err) {
       setError('Failed to upload picture');
-      console.error(err);
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-4">
-        <input 
-          type="file" 
-          accept="image/jpeg,image/png,image/gif"
-          onChange={handleFileChange}
-          className="file:mr-4 file:rounded-full file:border-0 file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
-        />
-        {previewUrl && (
-          <Image 
-            src={previewUrl} 
-            alt="Preview" 
-            width={100} 
-            height={100} 
-            className="rounded-full object-cover"
-          />
-        )}
-      </div>
-      {error && <p className="text-red-500">{error}</p>}
-      <button 
-        onClick={handleUpload}
-        disabled={!selectedFile || uploading}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-      >
-        {uploading ? 'Uploading...' : 'Upload Channel Picture'}
-      </button>
+    <div className="max-w-4xl mx-auto px-4 py-6">
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center space-y-6">
+            <div className="relative">
+              <Avatar className="w-32 h-32">
+                <AvatarImage 
+                  src={previewUrl || userData?.channel?.picture} 
+                  alt="Channel Picture" 
+                />
+                <AvatarFallback>
+                  {userData?.channel?.name?.[0]?.toUpperCase() || 'CH'}
+                </AvatarFallback>
+              </Avatar>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute bottom-0 right-0 rounded-full"
+                onClick={() => document.getElementById('picture-upload').click()}
+              >
+                <FaCamera className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <input
+              id="picture-upload"
+              type="file"
+              accept="image/jpeg,image/png,image/gif"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            {selectedFile && (
+              <Button
+                onClick={handleUpload}
+                disabled={uploading}
+                className="w-full max-w-sm"
+              >
+                {uploading ? 'Uploading...' : 'Upload Channel Picture'}
+              </Button>
+            )}
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {success && (
+              <Alert>
+                <AlertDescription>Channel picture updated successfully!</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="w-full max-w-sm space-y-2">
+              <h2 className="text-xl font-semibold">{userData?.channel?.name}</h2>
+              <p className="text-gray-500">{userData?.creator?.email}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
+
+export default ProfilePictureUpload;

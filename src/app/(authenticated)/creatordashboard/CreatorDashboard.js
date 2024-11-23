@@ -39,18 +39,7 @@ const CreatorDashboard = ({ channel }) => {
     }
   };
 
-  const handleAddTag = (e) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault();
-      if (!formData.tags.includes(tagInput.trim())) {
-        setFormData(prev => ({
-          ...prev,
-          tags: [...prev.tags, tagInput.trim()]
-        }));
-      }
-      setTagInput('');
-    }
-  };
+
 
   const removeTag = (tagToRemove) => {
     setFormData(prev => ({
@@ -72,7 +61,22 @@ const CreatorDashboard = ({ channel }) => {
         formDataToSend.append('file', formData.image);
       }
       formDataToSend.append('isJustIn', formData.isJustIn);
-      formData.tags.forEach(tag => formDataToSend.append('tags[]', tag));
+      
+      // Debug log to check tags before sending
+      // console.log('Tags before sending:', formData.tags);
+      
+      // Modify how we append tags
+      if (formData.tags.length > 0) {
+        formData.tags.forEach(tag => {
+          formDataToSend.append('tags', tag); // Changed from 'tags[]' to 'tags'
+          // console.log('Appending tag:', tag);
+        });
+      }
+
+      // Debug log to check FormData
+      // for (let pair of formDataToSend.entries()) {
+      //   console.log(pair[0] + ', ' + pair[1]);
+      // }
   
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/content`, {
         method: 'POST',
@@ -86,6 +90,9 @@ const CreatorDashboard = ({ channel }) => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to create content');
       }
+
+      const responseData = await response.json();
+      // console.log('Server response:', responseData);
   
       setSuccess(true);
       // Reset form
@@ -101,9 +108,29 @@ const CreatorDashboard = ({ channel }) => {
       const fileInput = document.getElementById('image');
       if (fileInput) fileInput.value = '';
     } catch (err) {
+      console.error('Submission error:', err);
       setError(err.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleAddTag = (e) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      const newTag = tagInput.trim();
+      // console.log('Adding new tag:', newTag); // Debug log
+      if (!formData.tags.includes(newTag)) {
+        setFormData(prev => {
+          const updatedTags = [...prev.tags, newTag];
+          // console.log('Updated tags array:', updatedTags); // Debug log
+          return {
+            ...prev,
+            tags: updatedTags
+          };
+        });
+      }
+      setTagInput('');
     }
   };
   
