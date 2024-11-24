@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { FiUpload, FiX, FiCheck, FiLoader } from "react-icons/fi";
 import { auth } from '@/app/(auth)/firebase/ClientApp';
+import VideoUpload from '@/component/BeyondUploads/VideoUpload';
 
 
 const CreatorDashboard = ({ channel }) => {
@@ -291,9 +292,7 @@ const CreatorDashboard = ({ channel }) => {
               </TabsContent>
 
               <TabsContent value="video">
-                <div className="text-center py-8 text-gray-500">
-                  Video upload form coming soon...
-                </div>
+              <VideoUpload/>
               </TabsContent>
             </Tabs>
           </CardContent>
