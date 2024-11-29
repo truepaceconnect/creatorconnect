@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { MdCancel } from "react-icons/md";
 import { FiUpload, FiX, FiCheck, FiLoader } from "react-icons/fi";
 import { auth } from '@/app/(auth)/firebase/ClientApp';
 import VideoUpload from '@/component/BeyondUploads/VideoUpload';
@@ -186,7 +186,7 @@ const CreatorDashboard = ({ channel }) => {
                             onClick={() => removeTag(tag)}
                             className="hover:bg-gray-200 rounded-full p-1"
                           >
-                            <X className="h-3 w-3" />
+                            <MdCancel className="h-3 w-3" />
                           </button>
                         </Badge>
                       ))}

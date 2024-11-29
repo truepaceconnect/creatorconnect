@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { auth } from '../firebase/ClientApp'
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
 import { FaEye,  FaEyeSlash } from "react-icons/fa";
+import Link from 'next/link'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -95,7 +96,15 @@ export default function LoginForm() {
       </div>
 
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">Password</label>
+        <div className="flex items-center justify-between">
+          <label className="block text-sm font-medium text-gray-700">Password</label>
+          <Link 
+            href="/forgot_password"
+            className="text-sm text-blue-600 hover:text-blue-700 transition-colors duration-200"
+          >
+            Forgot Password?
+          </Link>
+        </div>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
