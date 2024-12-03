@@ -10,6 +10,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
+        <head>
+         <link rel="icon" href="/TruePace.svg" sizes="any" />
+         </head>
       <body suppressHydrationWarning={true} className="min-h-screen">
        
           {children}
