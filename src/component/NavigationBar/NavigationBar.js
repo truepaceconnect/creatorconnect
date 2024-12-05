@@ -5,6 +5,7 @@ import { auth } from '@/app/(auth)/firebase/ClientApp';
 import { BiLogOut } from 'react-icons/bi';
 import { RiLayoutLine } from 'react-icons/ri';
 import { FiUser } from 'react-icons/fi';
+import { MdAnnouncement } from "react-icons/md";
 
 export default function NavigationBar() {
   const router = useRouter();
@@ -30,7 +31,18 @@ export default function NavigationBar() {
               <RiLayoutLine className="w-5 h-5 mr-2" />
               <span className="font-medium">Creator Dashboard</span>
             </Link>
+
+            <Link
+              href="/announcements"
+              className="flex items-center px-4 text-gray-700 hover:text-blue-600"
+            >
+              <MdAnnouncement className="w-5 h-5 mr-2" />
+              <span className="font-medium">Announcements</span>
+            </Link>
+
           </div>
+
+
           
           <div className="flex items-center space-x-4">
             <Link 
