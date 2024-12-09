@@ -127,13 +127,16 @@ export default function Announcements() {
     }
   };
 
+
   const handleLikeComment = async (announcementId, commentId, isLiked) => {
     try {
       const token = await auth.currentUser.getIdToken();
+      const action = isLiked ? 'unlike' : 'like';
+      
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/announcements/${announcementId}/comment/${commentId}/like`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/announcements/${announcementId}/comments/${commentId}/${action}`,
         {
-          method: isLiked ? 'DELETE' : 'POST',
+          method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -141,12 +144,16 @@ export default function Announcements() {
         }
       );
   
-      if (!response.ok) throw new Error('Failed to like/unlike comment');
+      if (!response.ok) throw new Error(`Failed to ${action} comment`);
+      
+      // Refresh announcements to get updated like count
       await fetchAnnouncements();
     } catch (error) {
-      console.error('Failed to like/unlike comment:', error);
+      console.error(`Failed to ${isLiked ? 'unlike' : 'like'} comment:`, error);
     }
-  };
+  }
+
+  
 
   const renderComments = (announcement) => {
     const sortedComments = announcement.comments
