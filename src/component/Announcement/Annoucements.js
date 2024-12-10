@@ -17,6 +17,38 @@ export default function Announcements() {
   const founderUids = ['u7NvqBzv7mc905ixY1Ka2RgQRTS2', 'TZ9xW6r0EFgd7CQDrOwfe2DZRFB2'];
   const COMMENTS_PREVIEW_LENGTH = 3;
 
+  
+  useEffect(() => {
+    const markAnnouncementsAsViewed = async () => {
+      if (!currentUser || !announcements.length) return;
+  
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const unviewedAnnouncements = announcements.filter(
+          announcement => !announcement.views.some(view => view.userId === currentUser.uid)
+        );
+  
+        await Promise.all(unviewedAnnouncements.map(async (announcement) => {
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/announcements/${announcement._id}/view`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+        }));
+      } catch (error) {
+        console.error('Failed to mark announcements as viewed:', error);
+      }
+    };
+  
+    markAnnouncementsAsViewed();
+  }, [currentUser, announcements]);
+
+
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
@@ -154,14 +186,25 @@ export default function Announcements() {
   }
 
   
-
   const renderComments = (announcement) => {
+    // Sort comments first by likes count (descending) and then by date (most recent first)
     const sortedComments = announcement.comments
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      .sort((a, b) => {
+        // First sort by number of likes (descending)
+        const likeDiff = b.likes.length - a.likes.length;
+        
+        // If likes are equal, sort by date (most recent first)
+        if (likeDiff === 0) {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        
+        return likeDiff;
+      });
     
     const displayComments = expandedComments[announcement._id] 
       ? sortedComments 
       : sortedComments.slice(0, COMMENTS_PREVIEW_LENGTH);
+  
 
     return (
       <>
