@@ -8,7 +8,7 @@ import Image from 'next/image';
 
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
-  const [newComment, setNewComment] = useState('');
+  const [newComments, setNewComments] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
   const [isFounder, setIsFounder] = useState(false);
   const [expandedComments, setExpandedComments] = useState({});
@@ -106,8 +106,17 @@ export default function Announcements() {
     }
   };
 
+  const handleCommentChange = (announcementId, value) => {
+    setNewComments(prev => ({
+      ...prev,
+      [announcementId]: value
+    }));
+  };
+  
+  // Modify the comment submission
   const submitComment = async (announcementId) => {
-    if (!newComment.trim()) return;
+    const commentText = newComments[announcementId];
+    if (!commentText?.trim()) return;
     
     try {
       const token = await auth.currentUser.getIdToken();
@@ -119,13 +128,17 @@ export default function Announcements() {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ content: newComment })
+          body: JSON.stringify({ content: commentText })
         }
       );
-
+  
       if (!response.ok) throw new Error('Failed to add comment');
-
-      setNewComment('');
+  
+      // Clear only the specific announcement's comment
+      setNewComments(prev => ({
+        ...prev,
+        [announcementId]: ''
+      }));
       await fetchAnnouncements();
     } catch (error) {
       console.error('Failed to add comment:', error);
@@ -360,14 +373,14 @@ export default function Announcements() {
               <h3 className="text-lg font-semibold mb-4">Comments</h3>
               
               <div className="flex gap-2 mb-4">
-                <input
-                  type="text"
-                  placeholder="Add a comment..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyDown={(e) => handleAddComment(announcement._id, e)}
-                  className="flex-1 border rounded-lg px-4 py-2"
-                />
+              <input
+                type="text"
+                placeholder="Add a comment..."
+                value={newComments[announcement._id] || ''}
+                onChange={(e) => handleCommentChange(announcement._id, e.target.value)}
+                onKeyDown={(e) => handleAddComment(announcement._id, e)}
+                className="flex-1 border rounded-lg px-4 py-2"
+                  />
                 <button
                   onClick={() => submitComment(announcement._id)}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"

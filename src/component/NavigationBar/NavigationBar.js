@@ -6,7 +6,8 @@ import { auth } from '@/app/(auth)/firebase/ClientApp';
 import { BiLogOut } from 'react-icons/bi';
 import { RiLayoutLine } from 'react-icons/ri';
 import { FiUser } from 'react-icons/fi';
-import { MdAnnouncement, MdCircleNotifications } from "react-icons/md";
+import { MdAnnouncement} from "react-icons/md";
+import { GoDotFill } from "react-icons/go";
 
 export default function NavigationBar() {
   const router = useRouter();
@@ -74,37 +75,48 @@ export default function NavigationBar() {
 
   return (
     <nav className="bg-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between h-16">
-          <div className="flex space-x-8">
-            <Link href="/dashboard" className="flex items-center">
-              <RiLayoutLine className="w-5 h-5 mr-2" />
-              <span>Creator Dashboard</span>
-            </Link>
+  <div className="max-w-7xl mx-auto px-4">
+    <div className="flex justify-between h-16">
+      <div className="flex items-center space-x-8">
+        <Link 
+          href="/dashboard" 
+          className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md"
+        >
+          <RiLayoutLine className="w-5 h-5 mr-2 flex-shrink-0" />
+          <span className="font-medium">Creator Dashboard</span>
+        </Link>
 
-            <Link href="/announcements" className="flex items-center relative">
-              <MdAnnouncement className="w-5 h-5 mr-2" />
-              <span>Announcements</span>
-              {hasUnreadAnnouncements && (
-                <MdCircleNotifications className="absolute -top-2 -right-2 w-5 h-5 text-red-500" />
-              )}
-            </Link>
+        <Link 
+          href="/announcements" 
+          className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md relative"
+        >
+          <MdAnnouncement className="w-5 h-5 mr-2 flex-shrink-0" />
+          <span className="font-medium">Announcements</span>
+          {hasUnreadAnnouncements && (
+            <GoDotFill
+              className="absolute -top-1 -right-1 w-4 h-4 text-red-500"
+            />
+          )}
+        </Link>
 
-            <Link href="/profile" className="flex items-center">
-              <FiUser className="w-5 h-5 mr-2" />
-              <span>Profile</span>
-            </Link>
+        <Link 
+          href="/profile" 
+          className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md"
+        >
+          <FiUser className="w-5 h-5 mr-2 flex-shrink-0" />
+          <span className="font-medium">Profile</span>
+        </Link>
 
-            <button
-              onClick={handleLogout}
-              className="flex items-center text-gray-700 hover:text-gray-900"
-            >
-              <BiLogOut className="w-5 h-5 mr-2" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md text-gray-700 hover:text-gray-900"
+        >
+          <BiLogOut className="w-5 h-5 mr-2 flex-shrink-0" />
+          <span className="font-medium">Logout</span>
+        </button>
       </div>
-    </nav>
+    </div>
+  </div>
+</nav>
   );
 }
