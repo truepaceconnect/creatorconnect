@@ -48,7 +48,7 @@ export default function LoginForm() {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Login successful:', userCredential.user.email);
+      console.log('Signin successful:', userCredential.user.email);
     } catch (error) {
       switch (error.code) {
         case 'auth/user-not-found':
@@ -64,7 +64,7 @@ export default function LoginForm() {
           setError('Too many failed attempts. Please try again later.');
           break;
         default:
-          setError('Failed to login. Please check your credentials.');
+          setError('Failed to signin. Please check your credentials.');
       }
     } finally {
       setIsLoading(false);
@@ -81,7 +81,7 @@ export default function LoginForm() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Don't have an account?{' '}
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-              Sign up
+              Register
             </Link>
           </p>
         </div>

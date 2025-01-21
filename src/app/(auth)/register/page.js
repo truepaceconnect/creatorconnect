@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { auth } from '../firebase/ClientApp'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { FaEye,  FaEyeSlash } from "react-icons/fa";
+import Link from 'next/link'
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -100,6 +101,14 @@ export default function RegisterForm() {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Create your account
         </h2>
+
+        <p className="mt-2 text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <Link href="/" className="font-medium text-blue-600 hover:text-blue-500">
+              Sign In
+            </Link>
+          </p>
+
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -189,6 +198,7 @@ export default function RegisterForm() {
               <div className="mt-1">
                 <input
                   type="text"
+                  maxLength={30}
                   value={formData.channelName}
                   onChange={(e) => setFormData({...formData, channelName: e.target.value})}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"

@@ -27,6 +27,13 @@ export default function NavigationBar() {
     return () => unsubscribe();
   }, []);
 
+  // Add a new useEffect to handle navigation when user state changes
+  useEffect(() => {
+    if (!isLoading && !currentUser) {
+      router.push('/');
+    }
+  }, [currentUser, isLoading, router]);
+
   const checkUnreadAnnouncements = async (user) => {
     if (!user) return;
 
@@ -48,7 +55,6 @@ export default function NavigationBar() {
       setHasUnreadAnnouncements(hasUnread);
     } catch (error) {
       console.error('Failed to check unread announcements:', error);
-      // Set hasUnreadAnnouncements to false in case of error to avoid showing incorrect notification
       setHasUnreadAnnouncements(false);
     }
   };
@@ -62,61 +68,59 @@ export default function NavigationBar() {
     }
   };
 
-  // Don't render navigation items until we confirm auth state
   if (isLoading) {
     return <div className="animate-pulse">Loading...</div>;
   }
 
-  // If no user is logged in, you might want to show different navigation or redirect
+  // Remove the direct navigation here and just return null
   if (!currentUser) {
-    router.push('/');
     return null;
   }
 
   return (
     <nav className="bg-white shadow-lg">
-  <div className="max-w-7xl mx-auto px-4">
-    <div className="flex justify-between h-16">
-      <div className="flex items-center space-x-8">
-        <Link 
-          href="/dashboard" 
-          className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md"
-        >
-          <RiLayoutLine className="w-5 h-5 mr-2 flex-shrink-0" />
-          <span className="font-medium">Creator Dashboard</span>
-        </Link>
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center space-x-8">
+            <Link 
+              href="/dashboard" 
+              className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md"
+            >
+              <RiLayoutLine className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="font-medium">Creator Dashboard</span>
+            </Link>
 
-        <Link 
-          href="/announcements" 
-          className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md relative"
-        >
-          <MdAnnouncement className="w-5 h-5 mr-2 flex-shrink-0" />
-          <span className="font-medium">Announcements</span>
-          {hasUnreadAnnouncements && (
-            <GoDotFill
-              className="absolute -top-1 -right-1 w-4 h-4 text-red-500"
-            />
-          )}
-        </Link>
+            <Link 
+              href="/announcements" 
+              className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md relative"
+            >
+              <MdAnnouncement className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="font-medium">Announcements</span>
+              {hasUnreadAnnouncements && (
+                <GoDotFill
+                  className="absolute -top-1 -right-1 w-4 h-4 text-red-500"
+                />
+              )}
+            </Link>
 
-        <Link 
-          href="/profile" 
-          className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md"
-        >
-          <FiUser className="w-5 h-5 mr-2 flex-shrink-0" />
-          <span className="font-medium">Profile</span>
-        </Link>
+            <Link 
+              href="/profile" 
+              className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md"
+            >
+              <FiUser className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="font-medium">Profile</span>
+            </Link>
 
-        <button
-          onClick={handleLogout}
-          className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md text-gray-700 hover:text-gray-900"
-        >
-          <BiLogOut className="w-5 h-5 mr-2 flex-shrink-0" />
-          <span className="font-medium">Logout</span>
-        </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center whitespace-nowrap px-3 py-2 hover:bg-gray-100 rounded-md text-gray-700 hover:text-gray-900"
+            >
+              <BiLogOut className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="font-medium">Logout</span>
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</nav>
+    </nav>
   );
 }

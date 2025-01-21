@@ -120,7 +120,7 @@ export default function ForgotPassword() {
                 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 
                 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200"
             >
-              Back to Login
+              Back to SignIn
             </Link>
           </div>
         </form>
