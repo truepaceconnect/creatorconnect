@@ -8,6 +8,7 @@ import Link from 'next/link'
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
+    
     email: '',
     password: '',
     channelName: '',

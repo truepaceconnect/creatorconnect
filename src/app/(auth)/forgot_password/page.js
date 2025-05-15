@@ -10,6 +10,13 @@ export default function ForgotPassword() {
   const [status, setStatus] = useState({ type: '', message: '' });
   const [isLoading, setIsLoading] = useState(false);
 
+  // Define actionCodeSettings object
+  const actionCodeSettings = {
+    // URL you want to redirect back to after password reset
+    url: process.env.NEXT_PUBLIC_PASSWORD_RESET_REDIRECT_URL || 'http://localhost:3000',
+    handleCodeInApp: true
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -23,6 +30,7 @@ export default function ForgotPassword() {
       });
       setEmail('');
     } catch (error) {
+      console.error("Password reset error:", error);
       let errorMessage = 'Failed to send reset email. Please try again.';
       
       switch (error.code) {
