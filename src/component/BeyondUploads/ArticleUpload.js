@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-
+import Image from 'next/image';
 import { auth } from '@/app/(auth)/firebase/ClientApp';
 import { MdCancel } from "react-icons/md";
 import { FaUpload } from 'react-icons/fa';
@@ -203,15 +203,16 @@ const ArticleUpload = () => {
                 </div>
               )}
             </div>
-            {formData.imagePreview && (
-              <div className="mt-2">
-                <img
-                  src={formData.imagePreview}
-                  alt="Preview"
-                  className="max-w-xs rounded-lg"
-                />
-              </div>
-            )}
+             {formData.imagePreview && (
+          <div className="mt-2 relative w-full max-w-xs h-48">
+            <Image
+              src={formData.imagePreview}
+              alt="Preview"
+              fill
+              className="rounded-lg object-cover"
+            />
+          </div>
+        )}
           </div>
 
           <div className="space-y-2">

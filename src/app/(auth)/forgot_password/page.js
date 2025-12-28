@@ -63,8 +63,8 @@ export default function ForgotPassword() {
             <Image
               src="/TruePace.svg" // Replace with your logo path
               alt="TruePace"
-              layout="fill"
-              objectFit="contain"
+              fill
+              style={{ objectFit: 'contain' }}
               priority
             />
           </div>
@@ -72,7 +72,7 @@ export default function ForgotPassword() {
             Reset Password
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password
+            Enter your email address and we&apos;ll send you a link to reset your password
           </p>
         </div>
 
@@ -92,11 +92,12 @@ export default function ForgotPassword() {
           )}
           
           <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email Address
             </label>
             <div className="relative">
               <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -135,7 +136,7 @@ export default function ForgotPassword() {
 
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link
               href="/register"
               className="font-medium text-blue-600 hover:text-blue-500"

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,61 +9,111 @@ import { Progress } from "@/components/ui/progress";
 import { FaUpload, FaCheckCircle } from "react-icons/fa";
 import { IoAlertCircle } from "react-icons/io5";
 import { MdCancel } from "react-icons/md";
+import Image from 'next/image';
 import { auth } from '@/app/(auth)/firebase/ClientApp';
 
 
-  const VideoUpload = ({ onVideoUploaded }) => {
-    const [videoFile, setVideoFile] = useState(null);
-    const [videoPreview, setVideoPreview] = useState(null);
-    const [thumbnail, setThumbnail] = useState(null);
-    const [thumbnailPreview, setThumbnailPreview] = useState(null);
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [tags, setTags] = useState('');
-    const [uploadProgress, setUploadProgress] = useState(0);
-    const [error, setError] = useState('');
-    const [isUploading, setIsUploading] = useState(false);
-    const [success, setSuccess] = useState(false);
-  
-    const handleVideoSelect = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        if (file.size > 100 * 1024 * 1024) {
-          setError('Video size must be less than 100MB');
-          return;
-        }
-        if (!file.type.startsWith('video/')) {
-          setError('Please select a valid video file');
-          return;
-        }
-        setVideoFile(file);
-        setVideoPreview(URL.createObjectURL(file));
-        setError('');
+const VideoUpload = ({ onVideoUploaded }) => {
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoPreview, setVideoPreview] = useState(null);
+  const [thumbnail, setThumbnail] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [tags, setTags] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleVideoSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 100 * 1024 * 1024) {
+        setError('Video size must be less than 100MB');
+        return;
       }
-    };
-  
-    const handleThumbnailSelect = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        if (!file.type.startsWith('image/')) {
-          setError('Please select a valid image file for thumbnail');
-          return;
-        }
-        setThumbnail(file);
-        setThumbnailPreview(URL.createObjectURL(file));
-        setError('');
+      if (!file.type.startsWith('video/')) {
+        setError('Please select a valid video file');
+        return;
       }
+      setVideoFile(file);
+      setVideoPreview(URL.createObjectURL(file));
+      setError('');
+    }
+  };
+
+  const handleThumbnailSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file for thumbnail');
+        return;
+      }
+      setThumbnail(file);
+      setThumbnailPreview(URL.createObjectURL(file));
+      setError('');
+    }
+  };
+
+  // Cleanup URLs when component unmounts or when files change
+  useEffect(() => {
+    return () => {
+      if (videoPreview) URL.revokeObjectURL(videoPreview);
+      if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
     };
-  
-    // Cleanup URLs when component unmounts or when files change
-    React.useEffect(() => {
-      return () => {
-        if (videoPreview) URL.revokeObjectURL(videoPreview);
-        if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
-      };
-    }, [videoPreview, thumbnailPreview]);
+  }, [videoPreview, thumbnailPreview]);
+
   const handleUpload = async () => {
-    // ... rest of the upload logic remains the same ...
+    if (!videoFile || !thumbnail || !title.trim()) {
+      setError('Please fill all required fields');
+      return;
+    }
+
+    setIsUploading(true);
+    setError('');
+    setSuccess(false);
+
+    try {
+      const formData = new FormData();
+      formData.append('video', videoFile);
+      formData.append('thumbnail', thumbnail);
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('tags', tags);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/videos`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      setSuccess(true);
+      setUploadProgress(100);
+      
+      // Reset form
+      setVideoFile(null);
+      setVideoPreview(null);
+      setThumbnail(null);
+      setThumbnailPreview(null);
+      setTitle('');
+      setDescription('');
+      setTags('');
+
+      if (onVideoUploaded) {
+        onVideoUploaded();
+      }
+    } catch (err) {
+      setError(err.message || 'Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   
@@ -156,11 +206,12 @@ import { auth } from '@/app/(auth)/firebase/ClientApp';
             )}
           </div>
           {thumbnailPreview && (
-            <div className="mt-2">
-              <img 
+            <div className="mt-2 relative w-full max-w-xs h-48">
+              <Image 
                 src={thumbnailPreview}
                 alt="Thumbnail preview"
-                className="max-w-xs rounded-lg"
+                fill
+                className="rounded-lg object-cover"
               />
             </div>
           )}

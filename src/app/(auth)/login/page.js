@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { auth } from '../firebase/ClientApp'
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
-import { FaEye, FaEnvelope,FaLock, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEnvelope, FaLock, FaEyeSlash } from "react-icons/fa";
 import Link from 'next/link'
 
 export default function LoginForm() {
@@ -79,7 +79,7 @@ export default function LoginForm() {
             Welcome Back
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
               Register
             </Link>
@@ -98,11 +98,12 @@ export default function LoginForm() {
           
           <div className="rounded-md shadow-sm -space-y-px">
             <div className="relative">
-              <label className="sr-only">Email</label>
+              <label htmlFor="email" className="sr-only">Email</label>
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <FaEnvelope className="h-5 w-5 text-gray-400" />
               </div>
               <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -115,11 +116,12 @@ export default function LoginForm() {
             </div>
             
             <div className="relative">
-              <label className="sr-only">Password</label>
+              <label htmlFor="password" className="sr-only">Password</label>
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <FaLock className="h-5 w-5 text-gray-400" />
               </div>
               <input
+                id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -145,10 +147,11 @@ export default function LoginForm() {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
+                id="remember-me"
                 type="checkbox"
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                 Remember me
               </label>
             </div>

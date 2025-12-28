@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { MdCancel } from "react-icons/md";
 import { FiUpload, FiX, FiCheck, FiLoader } from "react-icons/fi";
 import { auth } from '@/app/(auth)/firebase/ClientApp';
+import Image from 'next/image';
 
 const HeadlineUpload = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -135,7 +136,7 @@ const HeadlineUpload = () => {
           onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
           placeholder="Enter your headline news..."
           className="min-h-[100px]"
-        maxLength={180}
+          maxLength={180}
           required
         />
       </div>
@@ -162,7 +163,6 @@ const HeadlineUpload = () => {
           onChange={(e) => setTagInput(e.target.value)}
           onKeyDown={handleAddTag}
           placeholder="Type a tag and press Enter"
-          
         />
       </div>
 
@@ -175,7 +175,6 @@ const HeadlineUpload = () => {
             accept="image/*"
             onChange={handleImageUpload}
             className="hidden"
-            
           />
           <Button
             type="button"
@@ -202,11 +201,12 @@ const HeadlineUpload = () => {
           )}
         </div>
         {formData.imagePreview && (
-          <div className="mt-2">
-            <img
+          <div className="mt-2 relative w-full max-w-xs h-48">
+            <Image
               src={formData.imagePreview}
               alt="Preview"
-              className="max-w-xs rounded-lg"
+              fill
+              className="rounded-lg object-cover"
             />
           </div>
         )}
@@ -220,7 +220,7 @@ const HeadlineUpload = () => {
             setFormData(prev => ({ ...prev, isJustIn: checked }))
           }
         />
-        <Label htmlFor="just-in">Publish as "Just In" news</Label>
+        <Label htmlFor="just-in">Publish as &quot;Just In&quot; news</Label>
       </div>
 
       {error && (
